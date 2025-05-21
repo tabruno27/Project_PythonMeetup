@@ -21,9 +21,15 @@ def get_formatted_schedule() -> str:
     if not talks:
         return "🗓️ Расписание пока не составлено."
 
-    schedule = ["🗓️ *Расписание Митапа:*\n\n"]
+    schedule = ["🗓️ *Расписание Митапа:*"]
+    current_date = ""
 
     for talk in talks:
+        date = escape_markdown(talk.start_time.strftime("%d.%m.%Y\n"))
+        if date != current_date:
+            current_date = date
+            schedule.append(f"\n📅 *{current_date}*")
+
         start_time = talk.start_time.strftime("%H:%M")
         end_time = talk.end_time.strftime("%H:%M")
         title = escape_markdown(talk.title)

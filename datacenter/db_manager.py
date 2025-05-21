@@ -163,7 +163,7 @@ def get_current_talk() -> Talk | None:
 
 def get_all_talks() -> list[Talk]:
     with db.atomic():
-        talks = list(Talk.select())
+        talks = list(Talk.select().order_by(Talk.start_time.asc(), Talk.end_time.asc()))
         return talks
 
 

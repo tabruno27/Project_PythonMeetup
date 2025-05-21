@@ -1,8 +1,10 @@
 import datetime
 from peewee import *
+from pathlib import Path
 
-
-db = SqliteDatabase('meetup.db')
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = PROJECT_DIR / 'meetup.db'
+db = SqliteDatabase(DB_PATH)
 
 
 class BaseModel(Model):
@@ -159,7 +161,7 @@ def get_current_talk() -> Talk | None:
         return talk
 
 
-def get_all_talks() -> list[Speaker]:
+def get_all_talks() -> list[Talk]:
     with db.atomic():
         talks = list(Talk.select())
         return talks

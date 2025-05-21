@@ -1,26 +1,24 @@
-
-# Команда /start
-def start():
-
-  
-# Команда /ask_question
-def ask_question():
-  # Реализация функции "пользователь задал вопрос" 
-
-  
-# Команда /get_program
-def get_program():
-    # Здесь нужно получить программу мероприятия из базы данных
+import asyncio
+import logging
+import os
+from dotenv import load_dotenv
+from aiogram import Bot, Dispatcher
+from handlers import register_all_handlers
 
 
-# Команда /notify_users
-def notify_users(self):
-    # Оповещение о смене программы
+async def main():
+    load_dotenv()
+    TG_TOKEN = os.getenv('TG_TOKEN')
 
-  
-# Основная функция
-def main():
+    bot = Bot(token=TG_TOKEN)
+    dp = Dispatcher()
+
+    logging.basicConfig(level=logging.INFO)
+
+    register_all_handlers(dp)
+
+    await dp.start_polling(bot)
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    asyncio.run(main())

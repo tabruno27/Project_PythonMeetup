@@ -3,7 +3,18 @@ import logging
 import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
+from aiogram.types import BotCommand
 from handlers import register_all_handlers
+
+
+async def set_bot_commands(bot: Bot):
+    commands = [
+        BotCommand(command="/start", description="Перезапустить бота"),
+        BotCommand(command="/scheduler", description="Расписание докладов"),
+        BotCommand(command="/ask", description="Задать вопрос спикеру"),
+        BotCommand(command="/active", description="Текущий доклад")
+    ]
+    await bot.set_my_commands(commands)
 
 
 async def main():
@@ -14,6 +25,8 @@ async def main():
     dp = Dispatcher()
 
     logging.basicConfig(level=logging.INFO)
+
+    await set_bot_commands(bot)
 
     register_all_handlers(dp)
 

@@ -3,14 +3,13 @@ from aiogram import types, Dispatcher
 from aiogram.filters import Command
 from dotenv import load_dotenv
 from datacenter.db_manager import (create_speaker, get_speaker_by_telegram_id, create_talk)
-from aiogram import Bot  # Импортируйте объект бота, если он доступен
+from aiogram import Bot  
 import datetime
 
 
 load_dotenv()
 ORGANIZER_TELEGRAM_ID = int(os.getenv('ORGANIZER_TELEGRAM_ID'))
 
-# Хранение временных данных
 pending_speaker_data = {}
 
 
@@ -21,7 +20,6 @@ async def cmd_add_speaker(message: types.Message):
 
     await message.answer("Введите Telegram ID спикера (только цифры):")
 
-    # Сохраняем ID организатора для дальнейшего использования
     pending_speaker_data[message.from_user.id] = {"step": "waiting_for_speaker_id"}
 
 
@@ -84,7 +82,7 @@ async def process_message_add(message: types.Message):
         elif step == "waiting_for_end_time":
             end_time_str = message.text.strip()
             try:
-                end_time = datetime.datetime.strptime(end_time_str, "%H:%M")
+                end_time = datetime.datetime.strptime(end_time_str, "%Y-%m-%d %H:%M")
             except ValueError:
                 await message.answer("Неверный формат времени. Пожалуйста, введите время в формате ЧЧ:ММ (например, 15:00):")
                 return
@@ -96,21 +94,18 @@ async def process_message_add(message: types.Message):
 
             pending_speaker_data[user_id]["end_time"] = end_time
 
-            # Собираем все данные
             speaker_id = pending_speaker_data[user_id]["speaker_id"]
             speaker_name = pending_speaker_data[user_id]["speaker_name"]
             talk_title = pending_speaker_data[user_id]["talk_title"]
             start_time = pending_speaker_data[user_id]["start_time"]
             end_time = pending_speaker_data[user_id]["end_time"]
 
-            # Сохраняем спикера в базе
             speaker = create_speaker(name=speaker_name, telegram_id=speaker_id)
             if not speaker:
                 await message.answer("Произошла ошибка при добавлении спикера. Возможно, такой ID уже существует.")
                 del pending_speaker_data[user_id]
                 return
 
-            # Создаем доклад
             talk = create_talk(
                 speaker_id=speaker.id,
                 title=talk_title,
@@ -137,7 +132,7 @@ async def process_message_add(message: types.Message):
                 )
             )
 
-            del pending_speaker_data[user_id] # Удаляем данные после завершения процесса
+            del pending_speaker_data[user_id]
 
 
 def register_create_speaker_ad_handlers(dp: Dispatcher):

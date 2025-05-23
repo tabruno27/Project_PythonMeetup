@@ -12,7 +12,10 @@ async def set_bot_commands(bot: Bot):
         BotCommand(command="/start", description="Перезапустить бота"),
         BotCommand(command="/scheduler", description="Расписание докладов"),
         BotCommand(command="/ask", description="Задать вопрос спикеру"),
-        BotCommand(command="/active", description="Текущий доклад")
+        BotCommand(command="/active", description="Текущий доклад"),
+        BotCommand(command="/add_speaker", description="Добавить спикера"),
+        BotCommand(command="/delete_speaker", description="Удалить спикера"),
+        BotCommand(command="/update_schedule", description="Обновить расписание")
     ]
     await bot.set_my_commands(commands)
 

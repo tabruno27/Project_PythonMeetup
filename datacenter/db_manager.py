@@ -2,6 +2,7 @@ import datetime
 from peewee import *
 from pathlib import Path
 
+
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_DIR / 'meetup.db'
 db = SqliteDatabase(DB_PATH)
@@ -213,3 +214,18 @@ def delete_question(question_id: int) -> bool:
     with db.atomic():
         rows_deleted = Question.delete().where(Question.id == question_id).execute()
         return rows_deleted > 0
+
+
+def get_all_participants() -> list[dict]:
+    with db.atomic():
+        # Получаем всех спикеров из базы данных
+        speakers = list(Speaker.select())
+        # Формируем список участников в виде словарей
+        participants = [{"telegram_id": speaker.telegram_id, "name": speaker.name} for speaker in speakers]
+        return participants
+
+def delete_talk_by_speaker_id(speaker_id):
+    with db.atomic():  # Используем транзакцию для обеспечения целостности данных
+        query = Talk.delete().where(Talk.speaker == speaker_id)
+        rows_deleted = query.execute()  # Выполняем запрос и получаем количество удалённых строк
+    return rows_deleted

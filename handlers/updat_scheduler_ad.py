@@ -4,14 +4,13 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dotenv import load_dotenv
-from datacenter.db_manager import update_talk, get_talks_by_speaker, get_speaker_by_id, get_speaker_by_telegram_id, \
-    get_all_participants, get_talk_by_id
+from datacenter.db_manager import update_talk, get_talks_by_speaker, get_speaker_by_id, get_speaker_by_telegram_id, get_all_participants, get_talk_by_id
 import datetime
 import logging
 
+
 load_dotenv()
 ORGANIZER_TELEGRAM_ID = int(os.getenv('ORGANIZER_TELEGRAM_ID'))
-
 
 class UpdateScheduleState(StatesGroup):
     """Состояния для обновления расписания"""
@@ -105,7 +104,7 @@ async def process_update_title(message: types.Message, state: FSMContext):
         return
 
     await state.update_data(new_title=new_title)
-    await message.answer("Введите новое время начала в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 14:00):")
+    await message.answer("Введите новое время начала в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 25.05.2025 14:00):")
     await state.set_state(UpdateScheduleState.waiting_for_start_time)
 
 
@@ -114,14 +113,14 @@ async def process_update_start_time(message: types.Message, state: FSMContext):
     new_start_time_str = message.text.strip()
 
     try:
-        new_start_time = datetime.datetime.strptime(new_start_time_str, "%Y-%m-%d %H:%M")
+        new_start_time = datetime.datetime.strptime(new_start_time_str, "%d.%m.%Y %H:%M")
     except ValueError:
         await message.answer(
-            "❌ Неверный формат времени. Введите в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 14:00):")
+            "❌ Неверный формат времени. Введите в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 14:00):")
         return
 
     await state.update_data(new_start_time=new_start_time)
-    await message.answer("Введите новое время окончания в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 15:00):")
+    await message.answer("Введите новое время окончания в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 15:00):")
     await state.set_state(UpdateScheduleState.waiting_for_end_time)
 
 
@@ -130,10 +129,10 @@ async def process_update_end_time(message: types.Message, state: FSMContext):
     new_end_time_str = message.text.strip()
 
     try:
-        new_end_time = datetime.datetime.strptime(new_end_time_str, "%Y-%m-%d %H:%M")
+        new_end_time = datetime.datetime.strptime(new_end_time_str, "%d.%m.%Y %H:%M")
     except ValueError:
         await message.answer(
-            "❌ Неверный формат времени. Введите в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 15:00):")
+            "❌ Неверный формат времени. Введите в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 15:00):")
         return
 
     data = await state.get_data()
@@ -160,7 +159,7 @@ async def process_update_end_time(message: types.Message, state: FSMContext):
             await message.answer(
                 f"✅ Программа успешно обновлена!\n\n"
                 f"📋 Доклад: {new_title}\n"
-                f"🕒 Новое время: {new_start_time.strftime('%Y-%m-%d %H:%M')} - {new_end_time.strftime('%Y-%m-%d %H:%M')}"
+                f"🕒 Новое время: {new_start_time.strftime('%d.%m.%Y %H:%M')} - {new_end_time.strftime('%d.%m.%Y %H:%M')}"
             )
 
             # Уведомляем всех участников
@@ -183,8 +182,8 @@ async def notify_participants(message: types.Message, talk):
         if not participants:
             return
 
-        start_time_str = talk.start_time.strftime('%Y-%m-%d %H:%M')
-        end_time_str = talk.end_time.strftime('%Y-%m-%d %H:%M')
+        start_time_str = talk.start_time.strftime('%d.%m.%Y %H:%M')
+        end_time_str = talk.end_time.strftime('%d.%m.%Y %H:%M')
 
         notification_text = (
             f"📢 Программа обновлена!\n\n"

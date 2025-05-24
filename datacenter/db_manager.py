@@ -228,6 +228,7 @@ def get_all_participants() -> list[dict]:
         participants = [{"telegram_id": speaker.telegram_id, "name": speaker.name} for speaker in speakers]
         return participants
 
+
 def delete_talk_by_speaker_id(speaker_id):
     with db.atomic():  # Используем транзакцию для обеспечения целостности данных
         query = Talk.delete().where(Talk.speaker == speaker_id)

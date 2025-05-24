@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dotenv import load_dotenv
-from db_manager import delete_speaker, get_speaker_by_id, get_speaker_by_telegram_id, delete_talk_by_speaker_id
+from datacenter.db_manager import delete_speaker, get_speaker_by_id, get_speaker_by_telegram_id, delete_talk_by_speaker_id
 import logging
 
 load_dotenv()
@@ -12,12 +12,10 @@ ORGANIZER_TELEGRAM_ID = int(os.getenv('ORGANIZER_TELEGRAM_ID'))
 
 
 class DeleteSpeakerState(StatesGroup):
-    """Состояния для удаления спикера"""
     waiting_for_speaker_id = State()
 
 
 async def cmd_delete_speaker(message: types.Message, state: FSMContext):
-    """Команда для удаления спикера"""
     user_id = message.from_user.id
 
     logging.info(f"Команда /delete_speaker от пользователя {user_id}")
@@ -32,7 +30,6 @@ async def cmd_delete_speaker(message: types.Message, state: FSMContext):
 
 
 async def process_delete_speaker_id(message: types.Message, state: FSMContext):
-    """Обработка ввода Telegram ID спикера для удаления"""
     telegram_id_str = message.text.strip()
 
     if not telegram_id_str.isdigit():
@@ -78,7 +75,6 @@ async def process_delete_speaker_id(message: types.Message, state: FSMContext):
 
 
 def register_delete_speaker_ad_handlers(dp: Dispatcher):
-    """Регистрация обработчиков удаления спикера"""
     dp.message.register(cmd_delete_speaker, Command("delete_speaker"))
     dp.message.register(process_delete_speaker_id, DeleteSpeakerState.waiting_for_speaker_id)
 

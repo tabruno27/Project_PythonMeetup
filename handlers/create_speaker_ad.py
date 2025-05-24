@@ -13,7 +13,6 @@ ORGANIZER_TELEGRAM_ID = int(os.getenv('ORGANIZER_TELEGRAM_ID'))
 
 
 class CreateSpeakerState(StatesGroup):
-    """Состояния для создания спикера"""
     waiting_for_speaker_id = State()
     waiting_for_speaker_name = State()
     waiting_for_talk_title = State()
@@ -22,7 +21,6 @@ class CreateSpeakerState(StatesGroup):
 
 
 async def cmd_add_speaker(message: types.Message, state: FSMContext):
-    """Команда для добавления спикера"""
     if message.from_user.id != ORGANIZER_TELEGRAM_ID:
         await message.answer("Извините, у вас нет прав для выполнения этой команды.")
         return
@@ -32,7 +30,6 @@ async def cmd_add_speaker(message: types.Message, state: FSMContext):
 
 
 async def process_speaker_id(message: types.Message, state: FSMContext):
-    """Обработка ввода Telegram ID спикера"""
     speaker_id_str = message.text.strip()
 
     if not speaker_id_str.isdigit():
@@ -53,7 +50,6 @@ async def process_speaker_id(message: types.Message, state: FSMContext):
 
 
 async def process_speaker_name(message: types.Message, state: FSMContext):
-    """Обработка ввода имени спикера"""
     speaker_name = message.text.strip()
 
     if not speaker_name:
@@ -66,7 +62,6 @@ async def process_speaker_name(message: types.Message, state: FSMContext):
 
 
 async def process_talk_title(message: types.Message, state: FSMContext):
-    """Обработка ввода названия доклада"""
     talk_title = message.text.strip()
 
     if not talk_title:
@@ -79,7 +74,6 @@ async def process_talk_title(message: types.Message, state: FSMContext):
 
 
 async def process_start_time(message: types.Message, state: FSMContext):
-    """Обработка ввода времени начала доклада"""
     start_time_str = message.text.strip()
 
     try:
@@ -95,7 +89,6 @@ async def process_start_time(message: types.Message, state: FSMContext):
 
 
 async def process_end_time(message: types.Message, state: FSMContext):
-    """Обработка ввода времени окончания доклада"""
     end_time_str = message.text.strip()
 
     try:
@@ -113,20 +106,17 @@ async def process_end_time(message: types.Message, state: FSMContext):
             "Время окончания должно быть позже времени начала. Пожалуйста, введите корректное время окончания:")
         return
 
-    # Получаем все данные
     speaker_id = data['speaker_id']
     speaker_name = data['speaker_name']
     talk_title = data['talk_title']
 
     try:
-        # Создаем спикера
         speaker = create_speaker(name=speaker_name, telegram_id=speaker_id)
         if not speaker:
             await message.answer("Произошла ошибка при добавлении спикера. Возможно, такой ID уже существует.")
             await state.clear()
             return
 
-        # Создаем доклад
         talk = create_talk(
             speaker_id=speaker.id,
             title=talk_title,
@@ -144,7 +134,6 @@ async def process_end_time(message: types.Message, state: FSMContext):
             f"🕒 Время доклада: с {start_time.strftime('%Y-%m-%d %H:%M')} по {end_time.strftime('%Y-%m-%d %H:%M')}."
         )
 
-        # Уведомляем спикера
         try:
             await message.bot.send_message(
                 chat_id=speaker_id,
@@ -168,7 +157,6 @@ async def process_end_time(message: types.Message, state: FSMContext):
 
 
 def register_create_speaker_ad_handlers(dp: Dispatcher):
-    """Регистрация обработчиков создания спикера"""
     dp.message.register(cmd_add_speaker, Command("add_speaker"))
     dp.message.register(process_speaker_id, CreateSpeakerState.waiting_for_speaker_id)
     dp.message.register(process_speaker_name, CreateSpeakerState.waiting_for_speaker_name)

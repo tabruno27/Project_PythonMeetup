@@ -69,7 +69,7 @@ async def process_talk_title(message: types.Message, state: FSMContext):
         return
 
     await state.update_data(talk_title=talk_title)
-    await message.answer("Введите время начала доклада в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 14:00):")
+    await message.answer("Введите время начала доклада в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 14:00):")
     await state.set_state(CreateSpeakerState.waiting_for_start_time)
 
 
@@ -77,14 +77,14 @@ async def process_start_time(message: types.Message, state: FSMContext):
     start_time_str = message.text.strip()
 
     try:
-        start_time = datetime.datetime.strptime(start_time_str, '%Y-%m-%d %H:%M')
+        start_time = datetime.datetime.strptime(start_time_str, '%d.%m.%Y %H:%M')
     except ValueError:
         await message.answer(
-            "Неверный формат времени. Пожалуйста, введите время в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 14:00):")
+            "Неверный формат времени. Пожалуйста, введите время в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 14:00):")
         return
 
     await state.update_data(start_time=start_time)
-    await message.answer("Введите время окончания доклада в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 15:00):")
+    await message.answer("Введите время окончания доклада в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 15:00):")
     await state.set_state(CreateSpeakerState.waiting_for_end_time)
 
 
@@ -92,10 +92,10 @@ async def process_end_time(message: types.Message, state: FSMContext):
     end_time_str = message.text.strip()
 
     try:
-        end_time = datetime.datetime.strptime(end_time_str, '%Y-%m-%d %H:%M')
+        end_time = datetime.datetime.strptime(end_time_str, '%d.%m.%Y %H:%M')
     except ValueError:
         await message.answer(
-            "Неверный формат времени. Пожалуйста, введите время в формате ГГГГ-ММ-ДД ЧЧ:ММ (например, 2024-12-25 15:00):")
+            "Неверный формат времени. Пожалуйста, введите время в формате ДД.ММ.ГГГГ ЧЧ:ММ (например, 25.05.2025 15:00):")
         return
 
     data = await state.get_data()
@@ -131,7 +131,7 @@ async def process_end_time(message: types.Message, state: FSMContext):
 
         await message.answer(
             f"✅ Спикер '{speaker_name}' с докладом '{talk_title}' успешно добавлен.\n"
-            f"🕒 Время доклада: с {start_time.strftime('%Y-%m-%d %H:%M')} по {end_time.strftime('%Y-%m-%d %H:%M')}."
+            f"🕒 Время доклада: с {start_time.strftime('%d.%m.%Y %H:%M')} по {end_time.strftime('%d.%m.%Y %H:%M')}."
         )
 
         try:
@@ -141,7 +141,7 @@ async def process_end_time(message: types.Message, state: FSMContext):
                     f"👋 Здравствуйте, {speaker_name}!\n\n"
                     f"🎤 Вас добавили в список спикеров на мероприятии.\n"
                     f"📋 Ваш доклад: {talk_title}\n"
-                    f"🕒 Время выступления: с {start_time.strftime('%Y-%m-%d %H:%M')} по {end_time.strftime('%Y-%m-%d %H:%M')}.\n\n"
+                    f"🕒 Время выступления: с {start_time.strftime('%d.%m.%Y %H:%M')} по {end_time.strftime('%d.%m.%Y %H:%M')}.\n\n"
                     f"Удачи с выступлением! 🚀"
                 )
             )
@@ -163,6 +163,3 @@ def register_create_speaker_ad_handlers(dp: Dispatcher):
     dp.message.register(process_talk_title, CreateSpeakerState.waiting_for_talk_title)
     dp.message.register(process_start_time, CreateSpeakerState.waiting_for_start_time)
     dp.message.register(process_end_time, CreateSpeakerState.waiting_for_end_time)
-
-
-

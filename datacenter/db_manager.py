@@ -53,9 +53,13 @@ def close_db():
 
 
 def create_tables():
-    connect_db()
-    db.create_tables([Speaker, Talk, Question], safe=True)
-    close_db()
+    try:
+        db.create_tables([Speaker, Talk, Question], safe=True)
+        print("Таблицы базы данных созданы успешно")
+    except Exception as e:
+        print(f"Ошибка при создании таблиц: {e}")
+    finally:
+        close_db()
 
 
 def create_speaker(name: str, telegram_id: int) -> Speaker | None:

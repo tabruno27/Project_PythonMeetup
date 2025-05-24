@@ -1,6 +1,7 @@
 import os
 from aiogram import Bot
-from aiogram.types import BotCommand, BotCommandScopeChat
+from aiogram.types import BotCommand, BotCommandScopeChat, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from datacenter.db_manager import get_speaker_by_telegram_id
 
 
@@ -14,6 +15,52 @@ async def get_user_role(user_id: int) -> str:
         return 'speaker'
     
     return 'user'
+
+
+def get_keyboard_for_role(role: str) -> ReplyKeyboardBuilder:
+    """
+    Создает клавиатуру в зависимости от роли пользователя
+    
+    Args:
+        role: Роль пользователя ('user', 'speaker', 'organizer')
+        
+    Returns:
+        ReplyKeyboardBuilder: Объект клавиатуры с кнопками
+    """
+    kb = ReplyKeyboardBuilder()
+    
+    # Базовые кнопки для всех пользователей
+    kb.add(
+        KeyboardButton(text="/scheduler"),
+        KeyboardButton(text="/active"),
+        KeyboardButton(text="/ask")
+    )
+    
+    # Дополнительные кнопки для спикеров
+    if role == 'speaker':
+        kb.row(
+            KeyboardButton(text="/my_questions"),
+            KeyboardButton(text="/start_talk"),
+            KeyboardButton(text="/end_talk")
+        )
+    
+    # Дополнительные кнопки для организаторов
+    elif role == 'organizer':
+        kb.row(
+            KeyboardButton(text="/add_speaker"),
+            KeyboardButton(text="/delete_speaker")
+        )
+        kb.row(
+            KeyboardButton(text="/update_schedule")
+        )
+    
+    # Настраиваем размер клавиатуры (2 кнопки в ряду)
+    if role == 'user':
+        kb.adjust(2)
+    else:
+        kb.adjust(3, 2)
+    
+    return kb
 
 
 async def set_bot_commands(bot: Bot, user_id: int = None):

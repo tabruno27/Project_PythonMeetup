@@ -12,7 +12,11 @@ from handlers import register_all_handlers
 async def update_commands_handler(message: types.Message):
     user_id = message.from_user.id
     try:
+        # Обновляем команды бота в меню
         await set_bot_commands(message.bot, user_id)
+        
+        # Не отправляем клавиатуру при каждом сообщении, чтобы не мешать пользователю
+        # Клавиатура будет обновляться только при выполнении команд
     except Exception as e:
         logging.debug(f"Ошибка при обновлении команд для пользователя {user_id}: {e}")
 

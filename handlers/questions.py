@@ -2,19 +2,20 @@ from aiogram import types, Dispatcher
 from aiogram.filters import Command
 from datacenter.db_manager import create_question, get_talk_by_id
 from .talk_control import is_talk_active, get_active_talk_id
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
 import logging
+from commands import get_user_role, get_keyboard_for_role
 
 logger = logging.getLogger(__name__)
 
 
 async def handle_question(message: types.Message):
     try:
-        # Создаем клавиатуру с командами
-        keyboard = ReplyKeyboardBuilder()
-        keyboard.add(types.KeyboardButton(text="/scheduler"))
-        keyboard.add(types.KeyboardButton(text="/ask"))
-        keyboard.add(types.KeyboardButton(text="/active"))
+        # Получаем роль пользователя
+        user_id = message.from_user.id
+        role = await get_user_role(user_id)
+        
+        # Получаем клавиатуру соответствующую роли пользователя
+        keyboard = get_keyboard_for_role(role)
         
         if not is_talk_active():
             await message.answer("❌ Сейчас нет активного доклада для вопросов. Дождитесь начала выступления.",
@@ -68,11 +69,12 @@ async def handle_question(message: types.Message):
 
 
 async def handle_ask_command(message: types.Message):
-    # Создаем клавиатуру с командами
-    keyboard = ReplyKeyboardBuilder()
-    keyboard.add(types.KeyboardButton(text="/scheduler"))
-    keyboard.add(types.KeyboardButton(text="/ask"))
-    keyboard.add(types.KeyboardButton(text="/active"))
+    # Получаем роль пользователя
+    user_id = message.from_user.id
+    role = await get_user_role(user_id)
+    
+    # Получаем клавиатуру соответствующую роли пользователя
+    keyboard = get_keyboard_for_role(role)
     
     if not is_talk_active():
         await message.answer(

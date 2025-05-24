@@ -1,15 +1,16 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 from datacenter.db_manager import get_current_talk
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from commands import get_user_role, get_keyboard_for_role
 
 async def handle_active_command(message: types.Message):
     """Обработчик команды /active"""
-    # Создаем клавиатуру с командами
-    keyboard = ReplyKeyboardBuilder()
-    keyboard.add(types.KeyboardButton(text="/scheduler"))
-    keyboard.add(types.KeyboardButton(text="/ask"))
-    keyboard.add(types.KeyboardButton(text="/active"))
+    # Получаем роль пользователя
+    user_id = message.from_user.id
+    role = await get_user_role(user_id)
+    
+    # Получаем клавиатуру соответствующую роли пользователя
+    keyboard = get_keyboard_for_role(role)
     
     talk = get_current_talk()
     if not talk:

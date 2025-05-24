@@ -22,6 +22,12 @@ async def cmd_delete_speaker(message: types.Message, state: FSMContext):
 
     if user_id != ORGANIZER_TELEGRAM_ID:
         await message.answer("❌ У вас нет прав на выполнение этой команды.")
+        # Обновляем команды для этого пользователя, если он пытается выполнить команду организатора
+        from commands import set_bot_commands
+        try:
+            await set_bot_commands(message.bot, user_id)
+        except Exception as e:
+            logging.error(f"Ошибка при обновлении команд: {e}")
         return
 
     await message.answer("Введите Telegram ID спикера, которого необходимо удалить:")

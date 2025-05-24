@@ -15,6 +15,12 @@ async def handle_my_questions(message: types.Message):
 
     if not speaker:
         await message.answer("❌ Только зарегистрированные спикеры могут просматривать вопросы к своим докладам.")
+        # Обновляем команды для этого пользователя, если он пытается выполнить команду спикера
+        from commands import set_bot_commands
+        try:
+            await set_bot_commands(message.bot, user_id)
+        except Exception as e:
+            print(f"Ошибка при обновлении команд: {e}")
         return
 
     talks = get_talks_by_speaker(speaker.id)

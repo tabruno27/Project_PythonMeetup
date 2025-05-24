@@ -2,27 +2,19 @@ import asyncio
 import logging
 import os
 from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher
-from aiogram.types import BotCommand
-from handlers import register_all_handlers
+from aiogram import Bot, Dispatcher, types
 from datacenter.db_manager import create_tables
+from commands import set_bot_commands
+from handlers import register_all_handlers
 
 
-async def set_bot_commands(bot: Bot):
-    commands = [
-        BotCommand(command="/start", description="Перезапустить бота"),
-        BotCommand(command="/scheduler", description="Расписание докладов"),
-        BotCommand(command="/ask", description="Задать вопрос спикеру"),
-        BotCommand(command="/active", description="Текущий доклад"),
-        BotCommand(command="/add_speaker", description="Добавить спикера"),
-        BotCommand(command="/delete_speaker", description="Удалить спикера"),
-        BotCommand(command="/update_schedule", description="Обновить расписание"),
-        BotCommand(command="/my_questions", description="Вопросы к моим докладам"),
-        BotCommand(command="/start_talk", description="Начать доклад"),
-        BotCommand(command="/end_talk", description="Завершить доклад"),
-        BotCommand(command="/answered", description="Отметить вопрос как отвеченный")
-    ]
-    await bot.set_my_commands(commands)
+# Обработчик для обновления команд при каждом сообщении
+async def update_commands_handler(message: types.Message):
+    user_id = message.from_user.id
+    try:
+        await set_bot_commands(message.bot, user_id)
+    except Exception as e:
+        logging.debug(f"Ошибка при обновлении команд для пользователя {user_id}: {e}")
 
 
 async def main():
@@ -44,8 +36,12 @@ async def main():
     )
     logging.info("Запуск бота...")
 
+    # Устанавливаем базовые команды для всех пользователей
     await set_bot_commands(bot)
     register_all_handlers(dp)
+    
+    # Регистрируем обработчик для обновления команд
+    dp.message.register(update_commands_handler)
 
     try:
         await dp.start_polling(bot)

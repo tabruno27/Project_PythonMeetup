@@ -42,6 +42,17 @@ class Question(BaseModel):
         return f"Вопрос к '{self.talk.title}': {self.text[:50]}..."
 
 
+class User(BaseModel):
+    telegram_id = BigIntegerField(unique=True)
+    username = CharField(null=True)
+    first_name = CharField(null=True)
+    last_name = CharField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    def __str__(self):
+        return f":Пользователь  {self.telegram_id} - {self.first_name} {self.last_name}"
+
+
 def connect_db():
     if db.is_closed():
         db.connect()
@@ -54,7 +65,7 @@ def close_db():
 
 def create_tables():
     try:
-        db.create_tables([Speaker, Talk, Question], safe=True)
+        db.create_tables([Speaker, Talk, Question, User], safe=True)
         print("Таблицы базы данных созданы успешно")
     except Exception as e:
         print(f"Ошибка при создании таблиц: {e}")
@@ -220,12 +231,40 @@ def delete_question(question_id: int) -> bool:
         return rows_deleted > 0
 
 
-def get_all_participants() -> list[dict]:
+def add_user_to_db(telegram_id: int, username: str = None, first_name: str = None, last_name: str = None) -> bool:
+    """
+    Добавляет пользователя в базу данных, если его там ещё нет.
+    Возвращает True, если пользователь добавлен, False если пользователь уже существует.
+    """
+    try:
+        if db.is_closed():
+            db.connect()
+        user, created = User.get_or_create(
+            telegram_id=telegram_id,
+            defaults={
+                'username': username,
+                'first_name': first_name,
+                'last_name': last_name
+            }
+        )
+        return created  # True, если пользователь создан, False если уже был
+    except IntegrityError as e:
+        print(f"Ошибка при добавлении пользователя: {e}")
+        return False
+    finally:
+        if not db.is_closed():
+            db.close()
+
+def get_user_by_telegram_id(telegram_id: int) -> User | None:
     with db.atomic():
-        # Получаем всех спикеров из базы данных
-        speakers = list(Speaker.select())
-        # Формируем список участников в виде словарей
-        participants = [{"telegram_id": speaker.telegram_id, "name": speaker.name} for speaker in speakers]
+        user = User.get_or_none(User.telegram_id == telegram_id)
+        return user
+
+
+def get_all_participants() -> list[User ]:
+    with db.atomic():
+        users = list(User.select())
+        participants = [{"telegram_id": user.telegram_id} for user in users]
         return participants
 
 

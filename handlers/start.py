@@ -1,12 +1,23 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 import os
-from datacenter.db_manager import get_speaker_by_telegram_id
+from datacenter.db_manager import get_speaker_by_telegram_id, add_user_to_db
 from commands import set_bot_commands, get_user_role, get_keyboard_for_role
 
 async def handle_start(message: types.Message):
     user_id = message.from_user.id
-    
+    user_id = message.from_user.id
+    username = message.from_user.username
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
+
+    # Добавляем пользователя в базу данных
+    added = add_user_to_db(user_id, username, first_name, last_name)  # Обновите вызов функции
+    if added:
+        print(f"Пользователь {first_name} {last_name} добавлен в базу данных.")
+    else:
+        print(f"Пользователь с ID {user_id} уже существует в базе данных.")
+
     # Определяем роль пользователя для отображения в сообщении
     role_name = "участник"
     role = await get_user_role(user_id)

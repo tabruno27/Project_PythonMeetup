@@ -35,7 +35,7 @@ def get_keyboard_for_role(role: str) -> ReplyKeyboardBuilder:
         KeyboardButton(text="/active"),
         KeyboardButton(text="/ask")
     )
-    
+    kb.row(KeyboardButton(text="💎 Поддержать проект"))
     # Дополнительные кнопки для спикеров
     if role == 'speaker':
         kb.row(

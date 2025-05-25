@@ -53,6 +53,9 @@ def get_keyboard_for_role(role: str) -> ReplyKeyboardBuilder:
         kb.row(
             KeyboardButton(text="/update_schedule")
         )
+        kb.row(
+            KeyboardButton(text="/mass_sms")
+        )
     
     # Настраиваем размер клавиатуры (2 кнопки в ряду)
     if role == 'user':
@@ -83,6 +86,7 @@ async def set_bot_commands(bot: Bot, user_id: int = None):
         BotCommand(command="/add_speaker", description="Добавить спикера"),
         BotCommand(command="/delete_speaker", description="Удалить спикера"),
         BotCommand(command="/update_schedule", description="Обновить расписание"),
+        BotCommand(command="/update_schedule", description="Создать массовую рассылку")
     ]
 
     if user_id:
